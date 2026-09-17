@@ -198,6 +198,20 @@ button.primary {
   font-size: 0.9rem;
 }
 
+.mushra-row-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.mushra-value {
+  min-width: 2.5ch;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--accent);
+}
+
 .mushra-slider {
   width: 100%;
   accent-color: var(--accent);

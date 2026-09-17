@@ -313,7 +313,10 @@ export function renderMushraItem({ index, total, itemLabel = "Item", bands, stim
       <div class="mushra-row">
         <div class="mushra-row-header">
           <span class="mushra-row-label">${s.label}</span>
-          <button class="mushra-play" data-key="${s.key}">Play</button>
+          <div class="mushra-row-controls">
+            <span class="mushra-value" data-key="${s.key}">50</span>
+            <button class="mushra-play" data-key="${s.key}">Play</button>
+          </div>
         </div>
         <input type="range" class="mushra-slider" data-key="${s.key}" min="0" max="100" value="50" disabled />
         <div class="mushra-bands">${bandLabels}</div>
@@ -397,6 +400,13 @@ export function renderMushraItem({ index, total, itemLabel = "Item", bands, stim
       played.add(key);
       document.querySelector(`.mushra-slider[data-key="${key}"]`).disabled = false;
       maybeEnableContinue();
+    });
+  });
+
+  document.querySelectorAll(".mushra-slider").forEach((slider) => {
+    const valueEl = document.querySelector(`.mushra-value[data-key="${slider.dataset.key}"]`);
+    slider.addEventListener("input", () => {
+      valueEl.textContent = slider.value;
     });
   });
 
