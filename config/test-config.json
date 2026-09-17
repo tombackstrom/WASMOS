@@ -14,15 +14,16 @@
   "training": {
     "allowSkip": true,
     "items": [
-      { "type": "tone", "frequency": 220, "duration": 2.0 },
-      { "type": "tone", "frequency": 400, "duration": 2.0 },
-      { "type": "tone", "frequency": 700, "duration": 2.0 }
+      { "type": "file", "src": "sounds/practice_clean.wav" },
+      { "type": "file", "src": "sounds/practice_white.wav" },
+      { "type": "file", "src": "sounds/practice_pink.wav" }
     ]
   },
   "items": [
-    { "id": "item1", "type": "tone", "frequency": 330, "duration": 1.5 },
-    { "id": "item2", "type": "tone", "frequency": 440, "duration": 1.5 },
-    { "id": "item3", "type": "tone", "frequency": 550, "duration": 1.5 },
-    { "id": "item4", "type": "tone", "frequency": 660, "duration": 1.5 }
+    { "id": "clean", "type": "file", "src": "sounds/item_clean.wav" },
+    { "id": "white_20db", "type": "file", "src": "sounds/item_white_20db.wav" },
+    { "id": "white_5db", "type": "file", "src": "sounds/item_white_5db.wav" },
+    { "id": "pink_20db", "type": "file", "src": "sounds/item_pink_20db.wav" },
+    { "id": "pink_5db", "type": "file", "src": "sounds/item_pink_5db.wav" }
   ]
 }

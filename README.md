@@ -12,7 +12,13 @@ python3 -m http.server 8000
 
 then open `http://localhost:8000/`. The same folder can be deployed as-is to any static host (e.g. GitHub Pages).
 
-The test itself is defined in [config/test-config.json](config/test-config.json) — a human-readable file listing the scale, instructions, and items. The current items are synthesized placeholder tones (no audio assets needed yet); swap an item to `{"type": "file", "src": "..."}` to use a real audio file instead.
+The test itself is defined in [config/test-config.json](config/test-config.json) — a human-readable file listing the scale, instructions, and items. Items can be `{"type": "tone", "frequency": ...}` (synthesized, no assets needed) or `{"type": "file", "src": "..."}` for a real audio file.
+
+The demo config currently uses real audio: [sounds/soundsample.wav](sounds/soundsample.wav) mixed with white and pink noise at a few SNRs via [scripts/generate_demo_sounds.py](scripts/generate_demo_sounds.py) (requires numpy). Replace `soundsample.wav` and re-run the script to regenerate the demo stimuli from a different source recording:
+
+```sh
+python3 scripts/generate_demo_sounds.py
+```
 
 ## Status
 
