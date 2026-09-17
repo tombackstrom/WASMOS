@@ -1,0 +1,25 @@
+{
+  "testId": "demo-acr-001",
+  "title": "WASMOS Listening Test",
+  "instructions": "You will hear a series of short sounds, one at a time. After listening, rate the quality of each sound using the scale provided.",
+  "randomize": true,
+  "clickDelayMs": 250,
+  "scale": [
+    { "value": 5, "label": "Excellent" },
+    { "value": 4, "label": "Good" },
+    { "value": 3, "label": "Fair" },
+    { "value": 2, "label": "Poor" },
+    { "value": 1, "label": "Bad" }
+  ],
+  "trainingItem": {
+    "type": "tone",
+    "frequency": 220,
+    "duration": 2.0
+  },
+  "items": [
+    { "id": "item1", "type": "tone", "frequency": 330, "duration": 1.5 },
+    { "id": "item2", "type": "tone", "frequency": 440, "duration": 1.5 },
+    { "id": "item3", "type": "tone", "frequency": 550, "duration": 1.5 },
+    { "id": "item4", "type": "tone", "frequency": 660, "duration": 1.5 }
+  ]
+}
