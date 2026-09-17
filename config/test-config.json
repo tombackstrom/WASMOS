@@ -4,6 +4,21 @@
   "instructions": "You will hear a series of short sounds, one at a time. After listening, rate the quality of each sound using the scale provided.",
   "randomize": true,
   "clickDelayMs": 250,
+  "privacyNotice": {
+    "operatorName": "Aalto University",
+    "operatorContact": "tom.backstrom@aalto.fi",
+    "studyPurpose": "evaluating the perceived quality of processed audio samples",
+    "retentionPeriod": "12 months after the study concludes"
+  },
+  "backgroundQuestions": [
+    { "id": "age", "label": "Age", "type": "number" },
+    {
+      "id": "languageSkills",
+      "label": "How would you describe your English language skills?",
+      "type": "select",
+      "options": ["Native", "Fluent", "Intermediate", "Basic"]
+    }
+  ],
   "scale": [
     { "value": 1, "label": "Bad" },
     { "value": 2, "label": "Poor" },

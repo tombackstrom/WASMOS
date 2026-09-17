@@ -1,6 +1,8 @@
 import { playItem } from "./audio.js";
 import { createResultsCollector } from "./results.js";
 import {
+  renderPrivacyNotice,
+  renderBackgroundQuestions,
   renderWelcome,
   renderItem,
   renderTrainingComplete,
@@ -68,16 +70,26 @@ async function runTraining(config) {
 async function main() {
   const config = await fetch("config/test-config.json").then((r) => r.json());
 
-  renderWelcome(config, async (participantId) => {
-    await runTraining(config);
+  renderPrivacyNotice(config.privacyNotice, () => {
+    renderWelcome(config, async (participantId) => {
+      const backgroundQuestions = config.backgroundQuestions ?? [];
+      const background = backgroundQuestions.length
+        ? await new Promise((resolve) => {
+            renderBackgroundQuestions(backgroundQuestions, resolve);
+          })
+        : {};
 
-    const collector = createResultsCollector({
-      testId: config.testId,
-      participantId,
+      await runTraining(config);
+
+      const collector = createResultsCollector({
+        testId: config.testId,
+        participantId,
+      });
+      collector.setBackground(background);
+      const items = config.randomize ? shuffle(config.items) : config.items;
+      await runItems(items, config, collector);
+      renderEnd(() => collector.download());
     });
-    const items = config.randomize ? shuffle(config.items) : config.items;
-    await runItems(items, config, collector);
-    renderEnd(() => collector.download());
   });
 }
 

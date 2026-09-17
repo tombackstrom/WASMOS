@@ -2,9 +2,13 @@ import { createEncryptor, KEY_DERIVATION_DESCRIPTION } from "./crypto.js";
 
 export function createResultsCollector({ testId, participantId }) {
   const responses = [];
+  let background = {};
   const encryptRating = createEncryptor(testId, participantId);
 
   return {
+    setBackground(answers) {
+      background = answers;
+    },
     record(itemId, rating) {
       responses.push({ itemId, rating, timestamp: new Date().toISOString() });
     },
@@ -18,6 +22,7 @@ export function createResultsCollector({ testId, participantId }) {
       return {
         testId,
         participantId,
+        background,
         completedAt: new Date().toISOString(),
         encryption: {
           algorithm: "AES-GCM",

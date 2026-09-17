@@ -86,7 +86,9 @@ label {
   margin-bottom: 1.25rem;
 }
 
-input[type="text"] {
+input[type="text"],
+input[type="number"],
+select {
   display: block;
   width: 100%;
   margin-top: 0.35rem;
@@ -94,6 +96,19 @@ input[type="text"] {
   border: 1px solid var(--border);
   border-radius: 0.4rem;
   font-size: 1rem;
+  background: var(--card-bg);
+  color: var(--text);
+}
+
+.consent-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.consent-label input[type="checkbox"] {
+  margin-top: 0.2rem;
+  flex-shrink: 0;
 }
 
 button {
