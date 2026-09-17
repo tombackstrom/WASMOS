@@ -2,6 +2,8 @@
 
 WASMOS is a listening-test application, primarily following ITU-T P.800, with planned support for other methodologies (e.g. MUSHRA). Its core novelty is running on WebAssembly so it can be deployed without a dedicated application server (static hosting is sufficient).
 
+**Live demo:** [tombackstrom.github.io/WASMOS](https://tombackstrom.github.io/WASMOS/)
+
 ## Running it
 
 No build step or install required — it's plain JS/HTML/CSS loaded as native ES modules. Because browsers block `fetch()` from `file://` pages, serve the folder over local HTTP:
@@ -10,7 +12,7 @@ No build step or install required — it's plain JS/HTML/CSS loaded as native ES
 python3 -m http.server 8000
 ```
 
-then open `http://localhost:8000/` — a landing page listing every demo in [config/demos.json](config/demos.json), each linking to [test.html](test.html) (the actual test runner) with that demo's config passed as a `?config=` URL parameter. The whole folder can be deployed as-is to any static host (e.g. GitHub Pages: currently skipped since the repo is private — GitHub Pages for private repos needs a paid plan). Note: the results encryption (below) uses the browser's Web Crypto API, which only works in a "secure context" — `localhost` and any `https://` deployment are fine, but a plain `http://` server on another machine will not work.
+then open `http://localhost:8000/` — a landing page listing every demo in [config/demos.json](config/demos.json), each linking to [test.html](test.html) (the actual test runner) with that demo's config passed as a `?config=` URL parameter. The same page is deployed live via GitHub Pages at [tombackstrom.github.io/WASMOS](https://tombackstrom.github.io/WASMOS/), and the whole folder can be deployed as-is to any other static host too. Note: the results encryption (below) uses the browser's Web Crypto API, which only works in a "secure context" — `localhost` and any `https://` deployment are fine, but a plain `http://` server on another machine will not work.
 
 A test is defined by a config file (e.g. [config/demo-acr.json](config/demo-acr.json)) — human-readable JSON listing the test type, scale, instructions, and items. Items can be `{"type": "tone", "frequency": ...}` (synthesized, no assets needed) or `{"type": "file", "src": "..."}` for a real audio file.
 
