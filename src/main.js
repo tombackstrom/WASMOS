@@ -2,8 +2,8 @@ import { playItem } from "./audio.js";
 import { createResultsCollector } from "./results.js";
 import {
   renderWelcome,
-  renderTraining,
   renderItem,
+  renderTrainingComplete,
   renderEnd,
 } from "./ui.js";
 
@@ -31,23 +31,53 @@ async function runItems(items, config, collector) {
   }
 }
 
+// Runs the practice items one per screen, identical to the real test except
+// for a "skip training" button. Returns once the last item is rated or the
+// participant skips ahead.
+async function runTrainingItems(config) {
+  const items = config.training.items;
+  for (let index = 0; index < items.length; index++) {
+    const item = items[index];
+    const action = await new Promise((resolve) => {
+      renderItem(
+        { index, total: items.length, scale: config.scale, itemLabel: "Practice sample" },
+        {
+          onPlay: () => playItem(item, config.clickDelayMs),
+          onRate: () => resolve("continue"),
+          onSkip: config.training.allowSkip ? () => resolve("skip") : undefined,
+        }
+      );
+    });
+    if (action === "skip") return;
+  }
+}
+
+async function runTraining(config) {
+  while (true) {
+    await runTrainingItems(config);
+    const retry = await new Promise((resolve) => {
+      renderTrainingComplete({
+        onRetry: () => resolve(true),
+        onStartTest: () => resolve(false),
+      });
+    });
+    if (!retry) return;
+  }
+}
+
 async function main() {
   const config = await fetch("config/test-config.json").then((r) => r.json());
 
-  renderWelcome(config, (participantId) => {
-    renderTraining(config.training, {
-      onPlay: (index) =>
-        playItem(config.training.items[index], config.clickDelayMs),
-      onContinue: async () => {
-        const collector = createResultsCollector({
-          testId: config.testId,
-          participantId,
-        });
-        const items = config.randomize ? shuffle(config.items) : config.items;
-        await runItems(items, config, collector);
-        renderEnd(() => collector.download());
-      },
+  renderWelcome(config, async (participantId) => {
+    await runTraining(config);
+
+    const collector = createResultsCollector({
+      testId: config.testId,
+      participantId,
     });
+    const items = config.randomize ? shuffle(config.items) : config.items;
+    await runItems(items, config, collector);
+    renderEnd(() => collector.download());
   });
 }
 

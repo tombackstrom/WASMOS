@@ -22,55 +22,7 @@ export function renderWelcome({ title, instructions }, onStart) {
   });
 }
 
-export function renderTraining({ items, allowSkip }, handlers) {
-  const itemRows = items
-    .map(
-      (_, i) => `
-      <div class="play-row">
-        <button class="training-play" data-index="${i}">Play sample ${i + 1}</button>
-      </div>
-    `
-    )
-    .join("");
-
-  app.innerHTML = `
-    <div class="screen">
-      <h2>Practice samples</h2>
-      <p>
-        Play the samples below to get a sense of the range of sounds you'll
-        hear, and adjust your device's volume to a comfortable listening
-        level. These samples are not scored — play them as many times as you
-        like.
-      </p>
-      ${itemRows}
-      <div class="actions">
-        ${allowSkip ? '<button id="skipBtn">Skip practice</button>' : ""}
-        <button class="primary" id="continueBtn" disabled>Continue to test</button>
-      </div>
-    </div>
-  `;
-
-  const continueBtn = document.getElementById("continueBtn");
-
-  document.querySelectorAll(".training-play").forEach((btn) => {
-    btn.addEventListener("click", async () => {
-      btn.disabled = true;
-      await handlers.onPlay(Number(btn.dataset.index));
-      btn.disabled = false;
-      continueBtn.disabled = false;
-    });
-  });
-
-  continueBtn.addEventListener("click", () => handlers.onContinue());
-
-  if (allowSkip) {
-    document
-      .getElementById("skipBtn")
-      .addEventListener("click", () => handlers.onContinue());
-  }
-}
-
-export function renderItem({ index, total, scale }, handlers) {
+export function renderItem({ index, total, scale, itemLabel = "Item" }, handlers) {
   const scaleButtons = scale
     .map(
       (s) => `
@@ -84,7 +36,7 @@ export function renderItem({ index, total, scale }, handlers) {
 
   app.innerHTML = `
     <div class="screen">
-      <div class="progress">Item ${index + 1} of ${total}</div>
+      <div class="progress">${itemLabel} ${index + 1} of ${total}</div>
       <h2>Listen and rate</h2>
       <div class="play-row">
         <button id="playBtn">Play sound</button>
@@ -92,6 +44,7 @@ export function renderItem({ index, total, scale }, handlers) {
       <div class="scale" id="scale">
         ${scaleButtons}
       </div>
+      ${handlers.onSkip ? '<div class="actions"><button id="skipBtn">Skip training</button></div>' : ""}
     </div>
   `;
 
@@ -110,6 +63,26 @@ export function renderItem({ index, total, scale }, handlers) {
       handlers.onRate(Number(btn.dataset.value));
     });
   });
+
+  if (handlers.onSkip) {
+    document.getElementById("skipBtn").addEventListener("click", () => handlers.onSkip());
+  }
+}
+
+export function renderTrainingComplete(handlers) {
+  app.innerHTML = `
+    <div class="screen">
+      <h2>Practice complete</h2>
+      <p>The real test starts now — your ratings from this point on will be recorded.</p>
+      <div class="actions">
+        <button id="retryBtn">Try practice again</button>
+        <button class="primary" id="startTestBtn">Start test</button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById("retryBtn").addEventListener("click", () => handlers.onRetry());
+  document.getElementById("startTestBtn").addEventListener("click", () => handlers.onStartTest());
 }
 
 export function renderEnd(onDownload) {
