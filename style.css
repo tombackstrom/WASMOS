@@ -33,17 +33,23 @@ body {
   border: 1px solid var(--border);
   border-radius: 0.75rem;
   padding: 2rem;
-  animation: screen-in 200ms ease-out;
+  animation: screen-in 320ms ease-out;
 }
 
 @keyframes screen-in {
-  from {
+  0% {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(18px) scale(0.96);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.45);
   }
-  to {
+  60% {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1.01);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
   }
 }
 
