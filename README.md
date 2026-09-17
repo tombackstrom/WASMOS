@@ -10,3 +10,7 @@ Early design phase. Key decisions so far:
 - No absolute SPL calibration; instead, a pre-test training session lets participants adjust volume to a comfortable level.
 - A short delay is inserted between a "click to begin" gesture and stimulus playback, to avoid mouse-click noise interfering with the stimulus.
 - Result transmission threat model is "honest-but-curious" participants; lightweight keyed encryption over HTTPS is sufficient. Backend/transport choice is deferred until the UI/test-runner is working.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
