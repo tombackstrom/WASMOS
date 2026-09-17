@@ -10,5 +10,11 @@
     "label": "DCR — Degradation Category Rating",
     "description": "Rate how degraded a processed sample sounds relative to its clean reference.",
     "config": "config/demo-dcr.json"
+  },
+  {
+    "id": "ccr",
+    "label": "CCR — Comparison Category Rating",
+    "description": "Compare two samples directly and rate how one compares to the other, on a 7-point scale.",
+    "config": "config/demo-ccr.json"
   }
 ]

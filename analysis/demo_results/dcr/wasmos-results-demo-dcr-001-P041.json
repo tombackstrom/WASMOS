@@ -5,7 +5,7 @@
     "age": "47",
     "languageSkills": "Basic"
   },
-  "completedAt": "2026-09-17T06:41:30.383266+00:00",
+  "completedAt": "2026-09-17T07:51:50.551077+00:00",
   "encryption": {
     "algorithm": "AES-GCM",
     "keyDerivation": "SHA-256(\"<testId>:<participantId>\")",
@@ -14,33 +14,33 @@
   "responses": [
     {
       "itemId": "identical",
-      "timestamp": "2026-09-17T06:41:30.383192+00:00",
-      "rating": "bJSXLTaiF1LLRtvuO5VpGyg=",
-      "iv": "uOpHN1KieBku0K4r"
+      "timestamp": "2026-09-17T07:51:50.551009+00:00",
+      "rating": "7q+4fGZlHY2QMD3EI9TYpyI=",
+      "iv": "ov++G0n8+mkhKMbJ"
     },
     {
       "itemId": "pink_20db",
-      "timestamp": "2026-09-17T06:41:35.383192+00:00",
-      "rating": "j8YD9oT8N87We5NCaJVoGQU=",
-      "iv": "DFQqC3MD8NPwpQOr"
+      "timestamp": "2026-09-17T07:51:55.551009+00:00",
+      "rating": "qY/vy7k9LkIFeInCbY9X5qc=",
+      "iv": "QIZTyrb7XH6ZabyS"
     },
     {
       "itemId": "white_20db",
-      "timestamp": "2026-09-17T06:41:40.383192+00:00",
-      "rating": "9uhl4gzfOg4JG7rY2hgkOgQ=",
-      "iv": "lz/xlri7S6SKPUp3"
+      "timestamp": "2026-09-17T07:52:00.551009+00:00",
+      "rating": "o6jdvx1+rZZ2/Jb24W2vAoU=",
+      "iv": "RrbK3KpaIjmm9W7w"
     },
     {
       "itemId": "pink_5db",
-      "timestamp": "2026-09-17T06:41:45.383192+00:00",
-      "rating": "VJBeh9+TK1gbnfVhyiYOqHM=",
-      "iv": "p2/pGEGSb3AhDC6R"
+      "timestamp": "2026-09-17T07:52:05.551009+00:00",
+      "rating": "0iiNqoxM5xHpKoe272iP9BU=",
+      "iv": "biUmDTnoKHkqNQhX"
     },
     {
       "itemId": "white_5db",
-      "timestamp": "2026-09-17T06:41:50.383192+00:00",
-      "rating": "bLx0mis+iCr7BR1ZF1fO0YI=",
-      "iv": "flaf1WvjyeISGFih"
+      "timestamp": "2026-09-17T07:52:10.551009+00:00",
+      "rating": "vlwPIa/IvlEUCHrcWZ1DrXA=",
+      "iv": "aEadjaZnrkzr8rGT"
     }
   ]
 }

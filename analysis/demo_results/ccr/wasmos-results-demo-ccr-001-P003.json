@@ -1,0 +1,46 @@
+{
+  "testId": "demo-ccr-001",
+  "participantId": "P003",
+  "background": {
+    "age": "43",
+    "languageSkills": "Basic"
+  },
+  "completedAt": "2026-09-17T07:51:50.552841+00:00",
+  "encryption": {
+    "algorithm": "AES-GCM",
+    "keyDerivation": "SHA-256(\"<testId>:<participantId>\")",
+    "note": "Only the 'rating' field is encrypted (light obfuscation, not a strong secrecy guarantee) \u2014 everything else in this file is plain text so you can verify what is being sent. See src/crypto.js and scripts/decrypt_results.py for the exact, open scheme."
+  },
+  "responses": [
+    {
+      "itemId": "white20_vs_white5",
+      "timestamp": "2026-09-17T07:51:50.552768+00:00",
+      "rating": "oocF6Gx7fIp58cQZetyJy0yH",
+      "iv": "ILy86iOGCr4F5YI9"
+    },
+    {
+      "itemId": "pink5_vs_white5",
+      "timestamp": "2026-09-17T07:51:55.552768+00:00",
+      "rating": "Ga9P3xi53ATwSOD9g4huK9o=",
+      "iv": "Rd6FB+mwu/fLXRZR"
+    },
+    {
+      "itemId": "white20_vs_pink20",
+      "timestamp": "2026-09-17T07:52:00.552768+00:00",
+      "rating": "kWhzmFV+XR0umUE1uGATRyY=",
+      "iv": "MY2G2+nI3YwB5X36"
+    },
+    {
+      "itemId": "identical",
+      "timestamp": "2026-09-17T07:52:05.552768+00:00",
+      "rating": "SKrYBE4OmWgS186s2PH+Za8=",
+      "iv": "wmo5RSLkE0rqT7mO"
+    },
+    {
+      "itemId": "clean_vs_white5",
+      "timestamp": "2026-09-17T07:52:10.552768+00:00",
+      "rating": "BTZx39R2D/13P/R2OtXk2TeD",
+      "iv": "DMnyN5d2YUsX1fRS"
+    }
+  ]
+}

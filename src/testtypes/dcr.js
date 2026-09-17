@@ -23,10 +23,18 @@ export const dcr = {
       const item = items[index];
       const action = await new Promise((resolve) => {
         renderPairItem(
-          { index, total: items.length, scale, itemLabel },
           {
-            onPlayReference: () => playItem(item.reference, config.clickDelayMs),
-            onPlayTest: () => playItem(item.test, config.clickDelayMs),
+            index,
+            total: items.length,
+            scale,
+            itemLabel,
+            heading: "Listen and rate the degradation",
+            playALabel: "Play A (reference)",
+            playBLabel: "Play B (test)",
+          },
+          {
+            onPlayA: () => playItem(item.reference, config.clickDelayMs),
+            onPlayB: () => playItem(item.test, config.clickDelayMs),
             onRate: (rating) => {
               onRate(item.id, rating);
               resolve("continue");

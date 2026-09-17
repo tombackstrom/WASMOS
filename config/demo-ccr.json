@@ -1,0 +1,67 @@
+{
+  "testId": "demo-ccr-001",
+  "testType": "ccr",
+  "title": "WASMOS Demo — CCR",
+  "instructions": "You will hear a pair of sounds: A and B. After listening to both, rate how B compares to A, using the scale provided — B can be worse, the same, or better than A.",
+  "randomize": true,
+  "clickDelayMs": 250,
+  "privacyNotice": {
+    "operatorName": "Aalto University",
+    "operatorContact": "tom.backstrom@aalto.fi",
+    "studyPurpose": "comparing the perceived quality of different audio processing methods",
+    "retentionPeriod": "12 months after the study concludes"
+  },
+  "backgroundQuestions": [
+    { "id": "age", "label": "Age", "type": "number" },
+    {
+      "id": "languageSkills",
+      "label": "How would you describe your English language skills?",
+      "type": "select",
+      "options": ["Native", "Fluent", "Intermediate", "Basic"]
+    }
+  ],
+  "training": {
+    "allowSkip": true,
+    "items": [
+      {
+        "a": { "type": "file", "src": "sounds/practice_clean.wav" },
+        "b": { "type": "file", "src": "sounds/practice_clean.wav" }
+      },
+      {
+        "a": { "type": "file", "src": "sounds/practice_clean.wav" },
+        "b": { "type": "file", "src": "sounds/practice_white.wav" }
+      },
+      {
+        "a": { "type": "file", "src": "sounds/practice_white.wav" },
+        "b": { "type": "file", "src": "sounds/practice_pink.wav" }
+      }
+    ]
+  },
+  "items": [
+    {
+      "id": "identical",
+      "a": { "type": "file", "src": "sounds/item_clean.wav" },
+      "b": { "type": "file", "src": "sounds/item_clean.wav" }
+    },
+    {
+      "id": "clean_vs_white5",
+      "a": { "type": "file", "src": "sounds/item_clean.wav" },
+      "b": { "type": "file", "src": "sounds/item_white_5db.wav" }
+    },
+    {
+      "id": "white20_vs_pink20",
+      "a": { "type": "file", "src": "sounds/item_white_20db.wav" },
+      "b": { "type": "file", "src": "sounds/item_pink_20db.wav" }
+    },
+    {
+      "id": "white20_vs_white5",
+      "a": { "type": "file", "src": "sounds/item_white_20db.wav" },
+      "b": { "type": "file", "src": "sounds/item_white_5db.wav" }
+    },
+    {
+      "id": "pink5_vs_white5",
+      "a": { "type": "file", "src": "sounds/item_pink_5db.wav" },
+      "b": { "type": "file", "src": "sounds/item_white_5db.wav" }
+    }
+  ]
+}

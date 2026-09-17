@@ -1,5 +1,19 @@
 const app = document.getElementById("app");
 
+function renderScaleButtons(scale) {
+  const buttons = scale
+    .map(
+      (s) => `
+      <button class="rating" data-value="${s.value}" disabled>
+        <span class="value">${s.displayValue ?? s.value}</span>
+        <span class="label">${s.label}</span>
+      </button>
+    `
+    )
+    .join("");
+  return `<div class="scale" id="scale">${buttons}</div>`;
+}
+
 export function renderPrivacyNotice(notice, onAccept) {
   const {
     operatorName = "the study operator",
@@ -109,17 +123,6 @@ export function renderWelcome({ title, instructions }, onStart) {
 }
 
 export function renderItem({ index, total, scale, itemLabel = "Item" }, handlers) {
-  const scaleButtons = scale
-    .map(
-      (s) => `
-      <button class="rating" data-value="${s.value}" disabled>
-        <span class="value">${s.value}</span>
-        <span class="label">${s.label}</span>
-      </button>
-    `
-    )
-    .join("");
-
   app.innerHTML = `
     <div class="screen">
       <div class="progress">${itemLabel} ${index + 1} of ${total}</div>
@@ -127,9 +130,7 @@ export function renderItem({ index, total, scale, itemLabel = "Item" }, handlers
       <div class="play-row">
         <button id="playBtn">Play sound</button>
       </div>
-      <div class="scale" id="scale">
-        ${scaleButtons}
-      </div>
+      ${renderScaleButtons(scale)}
       ${handlers.onSkip ? '<div class="actions"><button id="skipBtn">Skip training</button></div>' : ""}
     </div>
   `;
@@ -155,57 +156,47 @@ export function renderItem({ index, total, scale, itemLabel = "Item" }, handlers
   }
 }
 
-// A reference+test pair per item (e.g. DCR), rated after both sides have
-// been played at least once.
-export function renderPairItem({ index, total, scale, itemLabel = "Item" }, handlers) {
-  const scaleButtons = scale
-    .map(
-      (s) => `
-      <button class="rating" data-value="${s.value}" disabled>
-        <span class="value">${s.value}</span>
-        <span class="label">${s.label}</span>
-      </button>
-    `
-    )
-    .join("");
-
+// A generic A/B pair per item (DCR's reference+test, CCR's comparison pair,
+// etc.), rated after both sides have been played at least once.
+export function renderPairItem(
+  { index, total, scale, itemLabel = "Item", heading = "Listen and rate", playALabel = "Play A", playBLabel = "Play B" },
+  handlers
+) {
   app.innerHTML = `
     <div class="screen">
       <div class="progress">${itemLabel} ${index + 1} of ${total}</div>
-      <h2>Listen and rate the degradation</h2>
+      <h2>${heading}</h2>
       <div class="play-row">
-        <button id="playRefBtn">Play A (reference)</button>
-        <button id="playTestBtn">Play B (test)</button>
+        <button id="playABtn">${playALabel}</button>
+        <button id="playBBtn">${playBLabel}</button>
       </div>
-      <div class="scale" id="scale">
-        ${scaleButtons}
-      </div>
+      ${renderScaleButtons(scale)}
       ${handlers.onSkip ? '<div class="actions"><button id="skipBtn">Skip training</button></div>' : ""}
     </div>
   `;
 
-  let refPlayed = false;
-  let testPlayed = false;
+  let aPlayed = false;
+  let bPlayed = false;
   function maybeEnableScale() {
-    if (!refPlayed || !testPlayed) return;
+    if (!aPlayed || !bPlayed) return;
     document.querySelectorAll("#scale button").forEach((btn) => (btn.disabled = false));
   }
 
-  const playRefBtn = document.getElementById("playRefBtn");
-  playRefBtn.addEventListener("click", async () => {
-    playRefBtn.disabled = true;
-    await handlers.onPlayReference();
-    playRefBtn.disabled = false;
-    refPlayed = true;
+  const playABtn = document.getElementById("playABtn");
+  playABtn.addEventListener("click", async () => {
+    playABtn.disabled = true;
+    await handlers.onPlayA();
+    playABtn.disabled = false;
+    aPlayed = true;
     maybeEnableScale();
   });
 
-  const playTestBtn = document.getElementById("playTestBtn");
-  playTestBtn.addEventListener("click", async () => {
-    playTestBtn.disabled = true;
-    await handlers.onPlayTest();
-    playTestBtn.disabled = false;
-    testPlayed = true;
+  const playBBtn = document.getElementById("playBBtn");
+  playBBtn.addEventListener("click", async () => {
+    playBBtn.disabled = true;
+    await handlers.onPlayB();
+    playBBtn.disabled = false;
+    bPlayed = true;
     maybeEnableScale();
   });
 
