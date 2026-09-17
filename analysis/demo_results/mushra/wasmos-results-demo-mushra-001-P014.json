@@ -1,0 +1,52 @@
+{
+  "testId": "demo-mushra-001",
+  "participantId": "P014",
+  "background": {
+    "age": "36",
+    "languageSkills": "Native"
+  },
+  "completedAt": "2026-09-17T08:16:21.348863+00:00",
+  "encryption": {
+    "algorithm": "AES-GCM",
+    "keyDerivation": "SHA-256(\"<testId>:<participantId>\")",
+    "note": "Only the 'rating' field is encrypted (light obfuscation, not a strong secrecy guarantee) \u2014 everything else in this file is plain text so you can verify what is being sent. See src/crypto.js and scripts/decrypt_results.py for the exact, open scheme."
+  },
+  "responses": [
+    {
+      "itemId": "scene1::white_5db",
+      "timestamp": "2026-09-17T08:16:21.348784+00:00",
+      "rating": "gBRYsRgncZAOSBIrGZuGENun",
+      "iv": "P0g/gwUWMue4+Wv+"
+    },
+    {
+      "itemId": "scene1::pink_20db",
+      "timestamp": "2026-09-17T08:16:26.348784+00:00",
+      "rating": "HPnZh/sQOKMVWUVXlk/M+ctn",
+      "iv": "iYH0qMvZBZAWdriK"
+    },
+    {
+      "itemId": "scene1::white_20db",
+      "timestamp": "2026-09-17T08:16:31.348784+00:00",
+      "rating": "gI6UHROJIkDgcN0EGPIKAKgh",
+      "iv": "1hGqRFdvZ6C1n6He"
+    },
+    {
+      "itemId": "scene1::ref",
+      "timestamp": "2026-09-17T08:16:36.348784+00:00",
+      "rating": "FRdPNFsuwOJUnPcGtO3n9jc7",
+      "iv": "7llpObG8hYvt0IrU"
+    },
+    {
+      "itemId": "scene1::pink_5db",
+      "timestamp": "2026-09-17T08:16:41.348784+00:00",
+      "rating": "oW0+xTO0Z510G05OtGizM34p",
+      "iv": "avZqNfIfcZg/xBPZ"
+    },
+    {
+      "itemId": "scene1::anchor",
+      "timestamp": "2026-09-17T08:16:46.348784+00:00",
+      "rating": "l3av4el5fGdSzDx+d4mBm2EU",
+      "iv": "aR//pFGiyZH9Q+qk"
+    }
+  ]
+}

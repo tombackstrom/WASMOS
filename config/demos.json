@@ -16,5 +16,11 @@
     "label": "CCR — Comparison Category Rating",
     "description": "Compare two samples directly and rate how one compares to the other, on a 7-point scale.",
     "config": "config/demo-ccr.json"
+  },
+  {
+    "id": "mushra",
+    "label": "MUSHRA — Multiple Stimuli with Hidden Reference and Anchor",
+    "description": "Rate several processed versions of a sound against a labeled reference, on a continuous 0-100 scale.",
+    "config": "config/demo-mushra.json"
   }
 ]

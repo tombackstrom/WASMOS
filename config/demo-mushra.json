@@ -1,0 +1,50 @@
+{
+  "testId": "demo-mushra-001",
+  "testType": "mushra",
+  "title": "WASMOS Demo — MUSHRA",
+  "instructions": "For each item you will hear a labeled Reference sound, plus several unlabeled sounds — these may include a hidden copy of the reference itself and a hidden low-quality anchor, used to screen listener reliability. Play the reference as often as you like, then play and rate each unlabeled sound from 0 (bad) to 100 (excellent) relative to the reference.",
+  "randomize": true,
+  "clickDelayMs": 250,
+  "privacyNotice": {
+    "operatorName": "Example University",
+    "operatorContact": "listening-test@example.edu",
+    "studyPurpose": "evaluating the perceived quality of processed audio samples against a reference",
+    "retentionPeriod": "12 months after the study concludes"
+  },
+  "backgroundQuestions": [
+    { "id": "age", "label": "Age", "type": "number" },
+    {
+      "id": "languageSkills",
+      "label": "How would you describe your English language skills?",
+      "type": "select",
+      "options": ["Native", "Fluent", "Intermediate", "Basic"]
+    }
+  ],
+  "training": {
+    "allowSkip": true,
+    "items": [
+      {
+        "id": "practice1",
+        "reference": { "type": "file", "src": "sounds/practice_clean.wav" },
+        "anchor": { "type": "file", "src": "sounds/practice_anchor_lp35.wav" },
+        "conditions": [
+          { "id": "white", "type": "file", "src": "sounds/practice_white.wav" },
+          { "id": "pink", "type": "file", "src": "sounds/practice_pink.wav" }
+        ]
+      }
+    ]
+  },
+  "items": [
+    {
+      "id": "scene1",
+      "reference": { "type": "file", "src": "sounds/item_clean.wav" },
+      "anchor": { "type": "file", "src": "sounds/item_anchor_lp35.wav" },
+      "conditions": [
+        { "id": "white_20db", "type": "file", "src": "sounds/item_white_20db.wav" },
+        { "id": "white_5db", "type": "file", "src": "sounds/item_white_5db.wav" },
+        { "id": "pink_20db", "type": "file", "src": "sounds/item_pink_20db.wav" },
+        { "id": "pink_5db", "type": "file", "src": "sounds/item_pink_5db.wav" }
+      ]
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 import { createResultsCollector } from "./results.js";
 import { testTypes } from "./testtypes/index.js";
+import { shuffle } from "./utils.js";
 import {
   renderPrivacyNotice,
   renderBackgroundQuestions,
@@ -7,15 +8,6 @@ import {
   renderTrainingComplete,
   renderEnd,
 } from "./ui.js";
-
-function shuffle(array) {
-  const result = array.slice();
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [result[i], result[j]] = [result[j], result[i]];
-  }
-  return result;
-}
 
 async function runTraining(config, testType) {
   while (true) {

@@ -63,6 +63,15 @@ def mix_at_snr(signal, noise, snr_db):
     return signal + scaled_noise
 
 
+def lowpass(signal, fr, cutoff_hz=3500):
+    """Brick-wall low-pass via FFT — the standard MUSHRA hidden-anchor
+    treatment is a reference low-passed at 3.5 kHz."""
+    spec = np.fft.rfft(signal)
+    freqs = np.fft.rfftfreq(len(signal), d=1 / fr)
+    spec[freqs > cutoff_hz] = 0
+    return np.fft.irfft(spec, len(signal))
+
+
 def main():
     signal, fr = read_wav_mono_float(SRC)
     n = len(signal)
@@ -82,7 +91,11 @@ def main():
         mixed = mix_at_snr(signal, noise, snr)
         write_wav_mono_int16(os.path.join(SOUNDS_DIR, fname), mixed, fr)
 
-    print(f"Wrote {2 + len(conditions)} files to {SOUNDS_DIR}")
+    # MUSHRA hidden low-anchor: reference low-passed at 3.5 kHz.
+    write_wav_mono_int16(os.path.join(SOUNDS_DIR, "item_anchor_lp35.wav"), lowpass(signal, fr), fr)
+    write_wav_mono_int16(os.path.join(SOUNDS_DIR, "practice_anchor_lp35.wav"), lowpass(signal, fr), fr)
+
+    print(f"Wrote {2 + len(conditions) + 2} files to {SOUNDS_DIR}")
 
 
 if __name__ == "__main__":

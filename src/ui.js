@@ -221,6 +221,83 @@ export function renderPairItem(
   }
 }
 
+// MUSHRA: a labeled reference plus a set of unlabeled stimuli (which may
+// include a hidden copy of the reference and a hidden low-anchor), each
+// rated on its own continuous 0-100 slider. `stimuli` is `[{ key, label }]`
+// in already-shuffled display order; `bands` are the 5 MUSHRA quality-band
+// labels shown under each slider.
+export function renderMushraItem({ index, total, itemLabel = "Item", bands, stimuli }, handlers) {
+  const bandLabels = bands.map((b) => `<span>${b.label}</span>`).join("");
+
+  const rows = stimuli
+    .map(
+      (s) => `
+      <div class="mushra-row">
+        <div class="mushra-row-header">
+          <span class="mushra-row-label">${s.label}</span>
+          <button class="mushra-play" data-key="${s.key}">Play</button>
+        </div>
+        <input type="range" class="mushra-slider" data-key="${s.key}" min="0" max="100" value="50" disabled />
+        <div class="mushra-bands">${bandLabels}</div>
+      </div>
+    `
+    )
+    .join("");
+
+  app.innerHTML = `
+    <div class="screen">
+      <div class="progress">${itemLabel} ${index + 1} of ${total}</div>
+      <h2>Rate each sound against the reference</h2>
+      <p>Play the reference as many times as you like. Then play and rate each sound below, from 0 (bad) to 100 (excellent), compared to the reference.</p>
+      <div class="play-row">
+        <button id="playRefBtn">Play reference</button>
+      </div>
+      <div class="mushra-grid">${rows}</div>
+      <div class="actions">
+        ${handlers.onSkip ? '<button id="skipBtn">Skip training</button>' : ""}
+        <button class="primary" id="continueBtn" disabled>Continue</button>
+      </div>
+    </div>
+  `;
+
+  const playRefBtn = document.getElementById("playRefBtn");
+  playRefBtn.addEventListener("click", async () => {
+    playRefBtn.disabled = true;
+    await handlers.onPlayReference();
+    playRefBtn.disabled = false;
+  });
+
+  const continueBtn = document.getElementById("continueBtn");
+  const played = new Set();
+  function maybeEnableContinue() {
+    if (played.size === stimuli.length) continueBtn.disabled = false;
+  }
+
+  document.querySelectorAll(".mushra-play").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const key = btn.dataset.key;
+      btn.disabled = true;
+      await handlers.onPlayStimulus(key);
+      btn.disabled = false;
+      played.add(key);
+      document.querySelector(`.mushra-slider[data-key="${key}"]`).disabled = false;
+      maybeEnableContinue();
+    });
+  });
+
+  continueBtn.addEventListener("click", () => {
+    const ratings = {};
+    document.querySelectorAll(".mushra-slider").forEach((slider) => {
+      ratings[slider.dataset.key] = Number(slider.value);
+    });
+    handlers.onSubmit(ratings);
+  });
+
+  if (handlers.onSkip) {
+    document.getElementById("skipBtn").addEventListener("click", () => handlers.onSkip());
+  }
+}
+
 export function renderTrainingComplete(handlers) {
   app.innerHTML = `
     <div class="screen">

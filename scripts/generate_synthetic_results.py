@@ -1,8 +1,9 @@
 """Generates synthetic WASMOS results files — 50 listeners each for the ACR,
-DCR, and CCR demo tests — in the exact encrypted format the app produces, for
-demonstrating/testing the analysis pipeline. This is fabricated data, not
-real listener responses; item IDs and testIds match config/demo-acr.json,
-config/demo-dcr.json, and config/demo-ccr.json.
+DCR, CCR, and MUSHRA demo tests — in the exact encrypted format the app
+produces, for demonstrating/testing the analysis pipeline. This is
+fabricated data, not real listener responses; item IDs and testIds match
+config/demo-acr.json, config/demo-dcr.json, config/demo-ccr.json, and
+config/demo-mushra.json.
 
 Usage:
     python3 scripts/generate_synthetic_results.py
@@ -50,20 +51,34 @@ CCR_ITEM_MEANS = {
     "pink5_vs_white5": 0.1,
 }
 
+# MUSHRA rates each stimulus 0-100 against the labeled reference. Composite
+# ids ("<item.id>::ref" etc.) match how src/testtypes/mushra.js records
+# responses — see that file's comment for why no separate schema is needed.
+# The hidden reference ("::ref") should score near 100 if listeners are
+# reliable; the hidden low-anchor ("::anchor", 3.5kHz low-pass) scores low.
+MUSHRA_ITEM_MEANS = {
+    "scene1::ref": 97,
+    "scene1::anchor": 35,
+    "scene1::white_20db": 80,
+    "scene1::white_5db": 25,
+    "scene1::pink_20db": 78,
+    "scene1::pink_5db": 22,
+}
+
 LANGUAGE_OPTIONS = ["Native", "Fluent", "Fluent", "Intermediate", "Basic"]
 
 
-def sample_rating(mean, listener_bias, rng, lo=1, hi=5):
-    value = rng.gauss(mean + listener_bias, 0.5)
+def sample_rating(mean, listener_bias, rng, lo=1, hi=5, std=0.5):
+    value = rng.gauss(mean + listener_bias, std)
     return min(hi, max(lo, round(value)))
 
 
-def generate_test(test_id, item_means, out_dir, rng, lo=1, hi=5):
+def generate_test(test_id, item_means, out_dir, rng, lo=1, hi=5, std=0.5, bias_std=0.3):
     out_dir.mkdir(parents=True, exist_ok=True)
     for i in range(1, N_LISTENERS + 1):
         participant_id = f"P{i:03d}"
         # Some listeners rate systematically higher/lower than others.
-        listener_bias = rng.gauss(0, 0.3)
+        listener_bias = rng.gauss(0, bias_std)
         background = {
             "age": str(rng.randint(19, 65)),
             "languageSkills": rng.choice(LANGUAGE_OPTIONS),
@@ -75,7 +90,7 @@ def generate_test(test_id, item_means, out_dir, rng, lo=1, hi=5):
         responses = [
             (
                 item_id,
-                sample_rating(item_means[item_id], listener_bias, rng, lo, hi),
+                sample_rating(item_means[item_id], listener_bias, rng, lo, hi, std),
                 (now + timedelta(seconds=5 * j)).isoformat(),
             )
             for j, item_id in enumerate(item_ids)
@@ -92,7 +107,11 @@ def main():
     generate_test("demo-acr-001", ACR_ITEM_MEANS, DEMO_RESULTS_DIR / "acr", rng)
     generate_test("demo-dcr-001", DCR_ITEM_MEANS, DEMO_RESULTS_DIR / "dcr", rng)
     generate_test("demo-ccr-001", CCR_ITEM_MEANS, DEMO_RESULTS_DIR / "ccr", rng, lo=-3, hi=3)
-    print(f"Wrote {N_LISTENERS} synthetic result files each for ACR, DCR, and CCR to {DEMO_RESULTS_DIR}")
+    generate_test(
+        "demo-mushra-001", MUSHRA_ITEM_MEANS, DEMO_RESULTS_DIR / "mushra", rng,
+        lo=0, hi=100, std=8, bias_std=5,
+    )
+    print(f"Wrote {N_LISTENERS} synthetic result files each for ACR, DCR, CCR, and MUSHRA to {DEMO_RESULTS_DIR}")
 
 
 if __name__ == "__main__":
