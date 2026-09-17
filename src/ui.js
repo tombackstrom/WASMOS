@@ -155,6 +155,71 @@ export function renderItem({ index, total, scale, itemLabel = "Item" }, handlers
   }
 }
 
+// A reference+test pair per item (e.g. DCR), rated after both sides have
+// been played at least once.
+export function renderPairItem({ index, total, scale, itemLabel = "Item" }, handlers) {
+  const scaleButtons = scale
+    .map(
+      (s) => `
+      <button class="rating" data-value="${s.value}" disabled>
+        <span class="value">${s.value}</span>
+        <span class="label">${s.label}</span>
+      </button>
+    `
+    )
+    .join("");
+
+  app.innerHTML = `
+    <div class="screen">
+      <div class="progress">${itemLabel} ${index + 1} of ${total}</div>
+      <h2>Listen and rate the degradation</h2>
+      <div class="play-row">
+        <button id="playRefBtn">Play A (reference)</button>
+        <button id="playTestBtn">Play B (test)</button>
+      </div>
+      <div class="scale" id="scale">
+        ${scaleButtons}
+      </div>
+      ${handlers.onSkip ? '<div class="actions"><button id="skipBtn">Skip training</button></div>' : ""}
+    </div>
+  `;
+
+  let refPlayed = false;
+  let testPlayed = false;
+  function maybeEnableScale() {
+    if (!refPlayed || !testPlayed) return;
+    document.querySelectorAll("#scale button").forEach((btn) => (btn.disabled = false));
+  }
+
+  const playRefBtn = document.getElementById("playRefBtn");
+  playRefBtn.addEventListener("click", async () => {
+    playRefBtn.disabled = true;
+    await handlers.onPlayReference();
+    playRefBtn.disabled = false;
+    refPlayed = true;
+    maybeEnableScale();
+  });
+
+  const playTestBtn = document.getElementById("playTestBtn");
+  playTestBtn.addEventListener("click", async () => {
+    playTestBtn.disabled = true;
+    await handlers.onPlayTest();
+    playTestBtn.disabled = false;
+    testPlayed = true;
+    maybeEnableScale();
+  });
+
+  document.querySelectorAll("#scale button").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      handlers.onRate(Number(btn.dataset.value));
+    });
+  });
+
+  if (handlers.onSkip) {
+    document.getElementById("skipBtn").addEventListener("click", () => handlers.onSkip());
+  }
+}
+
 export function renderTrainingComplete(handlers) {
   app.innerHTML = `
     <div class="screen">

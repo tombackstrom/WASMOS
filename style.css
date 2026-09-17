@@ -134,6 +134,9 @@ button.primary {
 
 .play-row {
   margin: 1.5rem 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .scale {
@@ -167,4 +170,26 @@ button.primary {
   display: flex;
   justify-content: flex-end;
   gap: 0.5rem;
+}
+
+.demo-card {
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
+  margin-top: 1rem;
+}
+
+.demo-card h2 {
+  margin-bottom: 0.25rem;
+}
+
+.button-link {
+  display: inline-block;
+  margin-top: 0.75rem;
+  padding: 0.6rem 1.1rem;
+  border-radius: 0.5rem;
+  background: var(--accent);
+  color: var(--accent-text);
+  text-decoration: none;
+  font-size: 1rem;
 }

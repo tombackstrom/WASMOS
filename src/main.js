@@ -1,10 +1,9 @@
-import { playItem } from "./audio.js";
 import { createResultsCollector } from "./results.js";
+import { testTypes } from "./testtypes/index.js";
 import {
   renderPrivacyNotice,
   renderBackgroundQuestions,
   renderWelcome,
-  renderItem,
   renderTrainingComplete,
   renderEnd,
 } from "./ui.js";
@@ -18,45 +17,14 @@ function shuffle(array) {
   return result;
 }
 
-async function runItems(items, config, collector) {
-  for (let index = 0; index < items.length; index++) {
-    const item = items[index];
-    await new Promise((resolve) => {
-      renderItem({ index, total: items.length, scale: config.scale }, {
-        onPlay: () => playItem(item, config.clickDelayMs),
-        onRate: (rating) => {
-          collector.record(item.id, rating);
-          resolve();
-        },
-      });
-    });
-  }
-}
-
-// Runs the practice items one per screen, identical to the real test except
-// for a "skip training" button. Returns once the last item is rated or the
-// participant skips ahead.
-async function runTrainingItems(config) {
-  const items = config.training.items;
-  for (let index = 0; index < items.length; index++) {
-    const item = items[index];
-    const action = await new Promise((resolve) => {
-      renderItem(
-        { index, total: items.length, scale: config.scale, itemLabel: "Practice sample" },
-        {
-          onPlay: () => playItem(item, config.clickDelayMs),
-          onRate: () => resolve("continue"),
-          onSkip: config.training.allowSkip ? () => resolve("skip") : undefined,
-        }
-      );
-    });
-    if (action === "skip") return;
-  }
-}
-
-async function runTraining(config) {
+async function runTraining(config, testType) {
   while (true) {
-    await runTrainingItems(config);
+    await testType.runItems(config.training.items, config, {
+      itemLabel: "Practice sample",
+      allowSkip: config.training.allowSkip,
+      onRate: () => {}, // practice ratings are not recorded
+    });
+
     const retry = await new Promise((resolve) => {
       renderTrainingComplete({
         onRetry: () => resolve(true),
@@ -67,8 +35,16 @@ async function runTraining(config) {
   }
 }
 
+function getConfigPath() {
+  return new URLSearchParams(window.location.search).get("config") ?? "config/demo-acr.json";
+}
+
 async function main() {
-  const config = await fetch("config/test-config.json").then((r) => r.json());
+  const config = await fetch(getConfigPath()).then((r) => r.json());
+  const testType = testTypes[config.testType ?? "acr"];
+  if (!testType) {
+    throw new Error(`Unknown testType "${config.testType}" in ${getConfigPath()}`);
+  }
 
   renderPrivacyNotice(config.privacyNotice, () => {
     renderWelcome(config, async (participantId) => {
@@ -79,15 +55,21 @@ async function main() {
           })
         : {};
 
-      await runTraining(config);
+      await runTraining(config, testType);
 
       const collector = createResultsCollector({
         testId: config.testId,
         participantId,
       });
       collector.setBackground(background);
+
       const items = config.randomize ? shuffle(config.items) : config.items;
-      await runItems(items, config, collector);
+      await testType.runItems(items, config, {
+        itemLabel: "Item",
+        allowSkip: false,
+        onRate: (itemId, rating) => collector.record(itemId, rating),
+      });
+
       renderEnd(() => collector.download());
     });
   });

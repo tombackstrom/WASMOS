@@ -1,0 +1,67 @@
+{
+  "testId": "demo-dcr-001",
+  "testType": "dcr",
+  "title": "WASMOS Demo — DCR",
+  "instructions": "You will hear a pair of sounds: A (the original) and B (a processed version). After listening to both, rate how degraded B sounds compared to A, using the scale provided.",
+  "randomize": true,
+  "clickDelayMs": 250,
+  "privacyNotice": {
+    "operatorName": "Aalto University",
+    "operatorContact": "tom.backstrom@aalto.fi",
+    "studyPurpose": "evaluating the perceived degradation introduced by audio processing methods",
+    "retentionPeriod": "12 months after the study concludes"
+  },
+  "backgroundQuestions": [
+    { "id": "age", "label": "Age", "type": "number" },
+    {
+      "id": "languageSkills",
+      "label": "How would you describe your English language skills?",
+      "type": "select",
+      "options": ["Native", "Fluent", "Intermediate", "Basic"]
+    }
+  ],
+  "training": {
+    "allowSkip": true,
+    "items": [
+      {
+        "reference": { "type": "file", "src": "sounds/practice_clean.wav" },
+        "test": { "type": "file", "src": "sounds/practice_clean.wav" }
+      },
+      {
+        "reference": { "type": "file", "src": "sounds/practice_clean.wav" },
+        "test": { "type": "file", "src": "sounds/practice_white.wav" }
+      },
+      {
+        "reference": { "type": "file", "src": "sounds/practice_clean.wav" },
+        "test": { "type": "file", "src": "sounds/practice_pink.wav" }
+      }
+    ]
+  },
+  "items": [
+    {
+      "id": "identical",
+      "reference": { "type": "file", "src": "sounds/item_clean.wav" },
+      "test": { "type": "file", "src": "sounds/item_clean.wav" }
+    },
+    {
+      "id": "white_20db",
+      "reference": { "type": "file", "src": "sounds/item_clean.wav" },
+      "test": { "type": "file", "src": "sounds/item_white_20db.wav" }
+    },
+    {
+      "id": "white_5db",
+      "reference": { "type": "file", "src": "sounds/item_clean.wav" },
+      "test": { "type": "file", "src": "sounds/item_white_5db.wav" }
+    },
+    {
+      "id": "pink_20db",
+      "reference": { "type": "file", "src": "sounds/item_clean.wav" },
+      "test": { "type": "file", "src": "sounds/item_pink_20db.wav" }
+    },
+    {
+      "id": "pink_5db",
+      "reference": { "type": "file", "src": "sounds/item_clean.wav" },
+      "test": { "type": "file", "src": "sounds/item_pink_5db.wav" }
+    }
+  ]
+}

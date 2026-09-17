@@ -10,9 +10,20 @@ No build step or install required — it's plain JS/HTML/CSS loaded as native ES
 python3 -m http.server 8000
 ```
 
-then open `http://localhost:8000/`. The same folder can be deployed as-is to any static host (e.g. GitHub Pages). Note: the results encryption (below) uses the browser's Web Crypto API, which only works in a "secure context" — `localhost` and any `https://` deployment are fine, but a plain `http://` server on another machine will not work.
+then open `http://localhost:8000/` — a landing page listing every demo in [config/demos.json](config/demos.json), each linking to [test.html](test.html) (the actual test runner) with that demo's config passed as a `?config=` URL parameter. The whole folder can be deployed as-is to any static host (e.g. GitHub Pages: currently skipped since the repo is private — GitHub Pages for private repos needs a paid plan). Note: the results encryption (below) uses the browser's Web Crypto API, which only works in a "secure context" — `localhost` and any `https://` deployment are fine, but a plain `http://` server on another machine will not work.
 
-The test itself is defined in [config/test-config.json](config/test-config.json) — a human-readable file listing the scale, instructions, and items. Items can be `{"type": "tone", "frequency": ...}` (synthesized, no assets needed) or `{"type": "file", "src": "..."}` for a real audio file.
+A test is defined by a config file (e.g. [config/demo-acr.json](config/demo-acr.json)) — human-readable JSON listing the test type, scale, instructions, and items. Items can be `{"type": "tone", "frequency": ...}` (synthesized, no assets needed) or `{"type": "file", "src": "..."}` for a real audio file.
+
+### Test types and adding a new one
+
+The `testType` field in a config (`"acr"` or `"dcr"`) selects which methodology runs the test — each is a small plugin module under [src/testtypes/](src/testtypes/) implementing the same interface (item shape, default rating scale, and how to render/play/collect one item), registered in [src/testtypes/index.js](src/testtypes/index.js). `acr.js` presents one stimulus per item; `dcr.js` presents a reference+test pair per item. Everything else (privacy notice, background questions, practice round with skip, results/encryption/download) is shared and test-type-agnostic.
+
+To add a new methodology (e.g. MUSHRA):
+1. Implement `src/testtypes/<name>.js` with `{ id, label, description, defaultScale, async runItems(items, config, { itemLabel, allowSkip, onRate }) }`, reusing or adding a render function in [src/ui.js](src/ui.js) for however that methodology presents an item.
+2. Register it in `src/testtypes/index.js`.
+3. Write `config/demo-<name>.json` and add an entry to `config/demos.json` so it shows up on the landing page.
+
+Operators picking a methodology for their own study just set `testType` in their config — no code changes needed for `acr`/`dcr`.
 
 The demo config currently uses real audio: [sounds/soundsample.wav](sounds/soundsample.wav) mixed with white and pink noise at a few SNRs via [scripts/generate_demo_sounds.py](scripts/generate_demo_sounds.py) (requires numpy). Replace `soundsample.wav` and re-run the script to regenerate the demo stimuli from a different source recording:
 
@@ -24,7 +35,9 @@ python3 scripts/generate_demo_sounds.py
 
 Implemented: a minimal end-to-end P.800 ACR (Absolute Category Rating) flow — privacy notice/consent screen, welcome screen, an operator-configurable background questionnaire (e.g. age, language skills — skipped entirely if left empty), a configurable set of practice samples (for volume adjustment and previewing the range of sounds, with a skip option for expert users), randomized item presentation with the click-to-play delay, 5-point rating scale, and JSON results download.
 
-The privacy notice (`config/test-config.json`'s `privacyNotice` block) is a GDPR-structured **template**, not vetted legal advice — have it reviewed by your institution's data protection office before running a real study, and fill in `operatorName`/`operatorContact`/`studyPurpose`/`retentionPeriod` for your specific study.
+Also implemented: a DCR (Degradation Category Rating) test type, alongside ACR — see "Test types" below. Live demos of both are listed on the landing page.
+
+The privacy notice (a config's `privacyNotice` block) is a GDPR-structured **template**, not vetted legal advice — have it reviewed by your institution's data protection office before running a real study, and fill in `operatorName`/`operatorContact`/`studyPurpose`/`retentionPeriod` for your specific study.
 
 Key design decisions so far:
 

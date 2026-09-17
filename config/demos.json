@@ -1,0 +1,14 @@
+[
+  {
+    "id": "acr",
+    "label": "ACR — Absolute Category Rating",
+    "description": "Rate the absolute quality of each sample on a 5-point scale.",
+    "config": "config/demo-acr.json"
+  },
+  {
+    "id": "dcr",
+    "label": "DCR — Degradation Category Rating",
+    "description": "Rate how degraded a processed sample sounds relative to its clean reference.",
+    "config": "config/demo-dcr.json"
+  }
+]
