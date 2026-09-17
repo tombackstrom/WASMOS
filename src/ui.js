@@ -95,5 +95,12 @@ export function renderEnd(onDownload) {
       </div>
     </div>
   `;
-  document.getElementById("downloadBtn").addEventListener("click", onDownload);
+  const downloadBtn = document.getElementById("downloadBtn");
+  downloadBtn.addEventListener("click", async () => {
+    downloadBtn.disabled = true;
+    downloadBtn.textContent = "Preparing…";
+    await onDownload();
+    downloadBtn.disabled = false;
+    downloadBtn.textContent = "Download results";
+  });
 }

@@ -10,7 +10,7 @@ No build step or install required — it's plain JS/HTML/CSS loaded as native ES
 python3 -m http.server 8000
 ```
 
-then open `http://localhost:8000/`. The same folder can be deployed as-is to any static host (e.g. GitHub Pages).
+then open `http://localhost:8000/`. The same folder can be deployed as-is to any static host (e.g. GitHub Pages). Note: the results encryption (below) uses the browser's Web Crypto API, which only works in a "secure context" — `localhost` and any `https://` deployment are fine, but a plain `http://` server on another machine will not work.
 
 The test itself is defined in [config/test-config.json](config/test-config.json) — a human-readable file listing the scale, instructions, and items. Items can be `{"type": "tone", "frequency": ...}` (synthesized, no assets needed) or `{"type": "file", "src": "..."}` for a real audio file.
 
@@ -30,6 +30,7 @@ Key design decisions so far:
 - No absolute SPL calibration; instead, a pre-test training session lets participants adjust volume to a comfortable level.
 - A short delay is inserted between a "click to begin" gesture and stimulus playback, to avoid mouse-click noise interfering with the stimulus.
 - Result transmission threat model is "honest-but-curious" participants; lightweight keyed encryption over HTTPS is sufficient. Backend/transport choice is deferred until the UI/test-runner is working.
+- Downloaded results are a human-readable JSON file with only the `rating` field encrypted (AES-GCM, key derived from `testId` + `participantId`, both left in plain text in the same file) — a participant can inspect the rest of the file to see exactly what's being sent, while casual viewers can't read scores at a glance. The scheme is intentionally open (see [src/crypto.js](src/crypto.js)); operators can decrypt with `python3 scripts/decrypt_results.py <file>`.
 
 ## License
 
