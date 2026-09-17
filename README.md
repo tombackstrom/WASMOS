@@ -31,11 +31,22 @@ The demo config currently uses real audio: [sounds/soundsample.wav](sounds/sound
 python3 scripts/generate_demo_sounds.py
 ```
 
+## Analyzing results
+
+Python tooling under [scripts/](scripts/) (install with `pip install -r scripts/requirements.txt`) decrypts and analyzes downloaded results:
+
+- `python3 scripts/decrypt_results.py <file.json>` — decrypt and print one results file.
+- `python3 scripts/extract_results.py <results_dir> <out.csv>` — decrypt and combine a whole directory of results files into one tidy CSV (one row per participant/item rating, background fields flattened as columns).
+- `python3 scripts/generate_synthetic_results.py` — generates fabricated results for 50 listeners each on the ACR and DCR demo tests, in the app's exact encrypted format, into `analysis/demo_results/`. Useful for testing/demonstrating the analysis pipeline without real participants.
+- [scripts/wasmos_analysis.py](scripts/wasmos_analysis.py) is the shared library behind all three (mirrors `src/crypto.js`'s scheme exactly) — import `load_results_dir` / `load_result_file` directly for custom analysis.
+
+[analysis/results_analysis.ipynb](analysis/results_analysis.ipynb) is a demo notebook that loads `analysis/demo_results/{acr,dcr}` and visualizes them (mean rating per condition with confidence intervals, white-vs-pink-noise comparison, rating spread, listener leniency). To analyze real results, point its `ACR_DIR`/`DCR_DIR` variables at a directory of downloaded results files instead. `analysis/demo_results/` holds **synthetic, fabricated data only** — not real listener responses.
+
 ## Status
 
 Implemented: a minimal end-to-end P.800 ACR (Absolute Category Rating) flow — privacy notice/consent screen, welcome screen, an operator-configurable background questionnaire (e.g. age, language skills — skipped entirely if left empty), a configurable set of practice samples (for volume adjustment and previewing the range of sounds, with a skip option for expert users), randomized item presentation with the click-to-play delay, 5-point rating scale, and JSON results download.
 
-Also implemented: a DCR (Degradation Category Rating) test type, alongside ACR — see "Test types" below. Live demos of both are listed on the landing page.
+Also implemented: a DCR (Degradation Category Rating) test type, alongside ACR — see "Test types" below. Live demos of both are listed on the landing page. Also implemented: Python tooling to decrypt/extract/analyze results, with a demo Jupyter notebook and synthetic data — see "Analyzing results" below.
 
 The privacy notice (a config's `privacyNotice` block) is a GDPR-structured **template**, not vetted legal advice — have it reviewed by your institution's data protection office before running a real study, and fill in `operatorName`/`operatorContact`/`studyPurpose`/`retentionPeriod` for your specific study.
 
