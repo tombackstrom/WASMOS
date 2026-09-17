@@ -1,5 +1,81 @@
 const app = document.getElementById("app");
 
+// Draws a min/max envelope waveform into `canvas` for `buffer` (an
+// AudioBuffer), with an optional {start, end} (seconds) selection
+// highlighted.
+function drawWaveform(canvas, buffer, selection) {
+  const ctx = canvas.getContext("2d");
+  const { width, height } = canvas;
+  const data = buffer.getChannelData(0);
+  const step = Math.max(1, Math.ceil(data.length / width));
+  const mid = height / 2;
+
+  ctx.clearRect(0, 0, width, height);
+
+  if (selection) {
+    const x0 = (selection.start / buffer.duration) * width;
+    const x1 = (selection.end / buffer.duration) * width;
+    ctx.fillStyle = "rgba(37, 99, 235, 0.18)";
+    ctx.fillRect(x0, 0, x1 - x0, height);
+  }
+
+  ctx.strokeStyle = "#2563eb";
+  ctx.beginPath();
+  for (let x = 0; x < width; x++) {
+    const start = x * step;
+    const end = Math.min(start + step, data.length);
+    let min = 0;
+    let max = 0;
+    for (let i = start; i < end; i++) {
+      const v = data[i];
+      if (v < min) min = v;
+      if (v > max) max = v;
+    }
+    ctx.moveTo(x + 0.5, mid + min * mid);
+    ctx.lineTo(x + 0.5, mid + max * mid);
+  }
+  ctx.stroke();
+}
+
+// Wires up click/drag selection on a waveform canvas: a plain click seeks
+// (plays from that point to the end), a drag selects a region (plays only
+// that window). Calls onChange(selection | null) as the selection changes.
+function setupWaveformInteraction(canvas, buffer, onChange) {
+  let dragStartX = null;
+
+  function timeAtClientX(clientX) {
+    const rect = canvas.getBoundingClientRect();
+    const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    return ratio * buffer.duration;
+  }
+
+  canvas.addEventListener("pointerdown", (e) => {
+    dragStartX = e.clientX;
+    canvas.setPointerCapture(e.pointerId);
+  });
+
+  canvas.addEventListener("pointermove", (e) => {
+    if (dragStartX === null) return;
+    const start = Math.min(timeAtClientX(dragStartX), timeAtClientX(e.clientX));
+    const end = Math.max(timeAtClientX(dragStartX), timeAtClientX(e.clientX));
+    onChange({ start, end });
+  });
+
+  canvas.addEventListener("pointerup", (e) => {
+    if (dragStartX === null) return;
+    const draggedPixels = Math.abs(e.clientX - dragStartX);
+    if (draggedPixels < 5) {
+      // A plain click: seek to this point, play to the end of the clip.
+      onChange({ start: timeAtClientX(e.clientX), end: buffer.duration });
+    } else {
+      const start = Math.min(timeAtClientX(dragStartX), timeAtClientX(e.clientX));
+      const end = Math.max(timeAtClientX(dragStartX), timeAtClientX(e.clientX));
+      onChange({ start, end });
+    }
+    dragStartX = null;
+  });
+}
+
 function renderScaleButtons(scale) {
   const buttons = scale
     .map(
@@ -225,7 +301,9 @@ export function renderPairItem(
 // include a hidden copy of the reference and a hidden low-anchor), each
 // rated on its own continuous 0-100 slider. `stimuli` is `[{ key, label }]`
 // in already-shuffled display order; `bands` are the 5 MUSHRA quality-band
-// labels shown under each slider.
+// labels shown under each slider. If `handlers.getReferenceBuffer` is given,
+// a waveform of the reference is drawn and can be clicked/dragged to focus
+// playback (of the reference AND every stimulus) on a specific region.
 export function renderMushraItem({ index, total, itemLabel = "Item", bands, stimuli }, handlers) {
   const bandLabels = bands.map((b) => `<span>${b.label}</span>`).join("");
 
@@ -249,6 +327,18 @@ export function renderMushraItem({ index, total, itemLabel = "Item", bands, stim
       <div class="progress">${itemLabel} ${index + 1} of ${total}</div>
       <h2>Rate each sound against the reference</h2>
       <p>Play the reference as many times as you like. Then play and rate each sound below, from 0 (bad) to 100 (excellent), compared to the reference.</p>
+      ${
+        handlers.getReferenceBuffer
+          ? `
+      <div class="waveform-wrap">
+        <canvas id="waveformCanvas" class="waveform-canvas" height="80"></canvas>
+        <div class="waveform-controls">
+          <span id="waveformHint" class="waveform-hint">Loading waveform…</span>
+          <button id="resetSelectionBtn" class="small" disabled>Play full clip</button>
+        </div>
+      </div>`
+          : ""
+      }
       <div class="play-row">
         <button id="playRefBtn">Play reference</button>
       </div>
@@ -260,10 +350,35 @@ export function renderMushraItem({ index, total, itemLabel = "Item", bands, stim
     </div>
   `;
 
+  let selection = null; // {start, end} in seconds, or null = full clip
+
+  if (handlers.getReferenceBuffer) {
+    const canvas = document.getElementById("waveformCanvas");
+    const resetBtn = document.getElementById("resetSelectionBtn");
+    const hint = document.getElementById("waveformHint");
+    canvas.width = canvas.clientWidth || 640;
+
+    handlers.getReferenceBuffer().then((buffer) => {
+      drawWaveform(canvas, buffer, selection);
+      hint.textContent = "Click to seek, or drag to select a region — applies to every sound below.";
+      setupWaveformInteraction(canvas, buffer, (sel) => {
+        selection = sel;
+        resetBtn.disabled = !sel;
+        drawWaveform(canvas, buffer, sel);
+      });
+
+      resetBtn.addEventListener("click", () => {
+        selection = null;
+        resetBtn.disabled = true;
+        drawWaveform(canvas, buffer, null);
+      });
+    });
+  }
+
   const playRefBtn = document.getElementById("playRefBtn");
   playRefBtn.addEventListener("click", async () => {
     playRefBtn.disabled = true;
-    await handlers.onPlayReference();
+    await handlers.onPlayReference(selection);
     playRefBtn.disabled = false;
   });
 
@@ -277,7 +392,7 @@ export function renderMushraItem({ index, total, itemLabel = "Item", bands, stim
     btn.addEventListener("click", async () => {
       const key = btn.dataset.key;
       btn.disabled = true;
-      await handlers.onPlayStimulus(key);
+      await handlers.onPlayStimulus(key, selection);
       btn.disabled = false;
       played.add(key);
       document.querySelector(`.mushra-slider[data-key="${key}"]`).disabled = false;

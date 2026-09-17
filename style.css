@@ -215,6 +215,39 @@ button.primary {
   margin-top: 0.3rem;
 }
 
+.waveform-wrap {
+  margin-top: 1rem;
+}
+
+.waveform-canvas {
+  display: block;
+  width: 100%;
+  height: 80px;
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+  background: var(--card-bg);
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.waveform-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+.waveform-hint {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+button.small {
+  font-size: 0.8rem;
+  padding: 0.35rem 0.7rem;
+}
+
 .demo-card {
   border: 1px solid var(--border);
   border-radius: 0.5rem;

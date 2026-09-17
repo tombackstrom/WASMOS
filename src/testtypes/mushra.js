@@ -1,5 +1,5 @@
 import { renderMushraItem } from "../ui.js";
-import { playItem } from "../audio.js";
+import { playItem, getBuffer } from "../audio.js";
 import { shuffle } from "../utils.js";
 
 export const mushra = {
@@ -52,8 +52,10 @@ export const mushra = {
             stimuli: entries.map(({ key, label }) => ({ key, label })),
           },
           {
-            onPlayReference: () => playItem(item.reference, config.clickDelayMs),
-            onPlayStimulus: (key) => playItem(stimulusByKey.get(key), config.clickDelayMs),
+            onPlayReference: (region) => playItem(item.reference, config.clickDelayMs, region),
+            onPlayStimulus: (key, region) => playItem(stimulusByKey.get(key), config.clickDelayMs, region),
+            getReferenceBuffer:
+              item.reference.type === "file" ? () => getBuffer(item.reference.src) : undefined,
             onSubmit: (ratings) => {
               for (const [key, value] of Object.entries(ratings)) {
                 onRate(key, value);

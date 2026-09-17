@@ -52,7 +52,7 @@ Implemented: a minimal end-to-end P.800 ACR (Absolute Category Rating) flow — 
 
 Also implemented: DCR (Degradation Category Rating), CCR (Comparison Category Rating), and MUSHRA test types, alongside ACR — see "Test types" below. Live demos of all four are listed on the landing page. Also implemented: Python tooling to decrypt/extract/analyze results, with a demo Jupyter notebook and synthetic data — see "Analyzing results" below.
 
-**MUSHRA is being developed on the `feature/mushra` branch** — its UI (multiple simultaneous sliders per scene) is a bigger departure from the other test types than DCR/CCR were, so it's being evaluated there before deciding whether to merge into `main`.
+MUSHRA also has a clickable/draggable waveform of the reference (canvas-drawn from the decoded audio buffer): a click seeks, a drag selects a region, and either confines playback — of the reference *and every stimulus in the scene* — to that window, so a listener can zoom in on one problematic segment and compare it consistently across all conditions. **This waveform feature is being developed on the `feature/mushra` branch** before merging forward; the rest of MUSHRA is already on `main`.
 
 The privacy notice (a config's `privacyNotice` block) is a GDPR-structured **template**, not vetted legal advice — have it reviewed by your institution's data protection office before running a real study, and fill in `operatorName`/`operatorContact`/`studyPurpose`/`retentionPeriod` for your specific study.
 
