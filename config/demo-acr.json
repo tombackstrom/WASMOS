@@ -6,8 +6,8 @@
   "randomize": true,
   "clickDelayMs": 250,
   "privacyNotice": {
-    "operatorName": "Aalto University",
-    "operatorContact": "tom.backstrom@aalto.fi",
+    "operatorName": "Example University",
+    "operatorContact": "listening-test@example.edu",
     "studyPurpose": "evaluating the perceived quality of processed audio samples",
     "retentionPeriod": "12 months after the study concludes"
   },
