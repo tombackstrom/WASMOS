@@ -33,6 +33,24 @@ body {
   border: 1px solid var(--border);
   border-radius: 0.75rem;
   padding: 2rem;
+  animation: screen-in 200ms ease-out;
+}
+
+@keyframes screen-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .screen {
+    animation: none;
+  }
 }
 
 h1 {
