@@ -2,7 +2,7 @@ import { playItem } from "./audio.js";
 import { createResultsCollector } from "./results.js";
 import {
   renderWelcome,
-  renderVolumeCheck,
+  renderTraining,
   renderItem,
   renderEnd,
 } from "./ui.js";
@@ -35,8 +35,9 @@ async function main() {
   const config = await fetch("config/test-config.json").then((r) => r.json());
 
   renderWelcome(config, (participantId) => {
-    renderVolumeCheck({
-      onPlay: () => playItem(config.trainingItem, config.clickDelayMs),
+    renderTraining(config.training, {
+      onPlay: (index) =>
+        playItem(config.training.items[index], config.clickDelayMs),
       onContinue: async () => {
         const collector = createResultsCollector({
           testId: config.testId,

@@ -11,10 +11,13 @@
     { "value": 4, "label": "Good" },
     { "value": 5, "label": "Excellent" }
   ],
-  "trainingItem": {
-    "type": "tone",
-    "frequency": 220,
-    "duration": 2.0
+  "training": {
+    "allowSkip": true,
+    "items": [
+      { "type": "tone", "frequency": 220, "duration": 2.0 },
+      { "type": "tone", "frequency": 400, "duration": 2.0 },
+      { "type": "tone", "frequency": 700, "duration": 2.0 }
+    ]
   },
   "items": [
     { "id": "item1", "type": "tone", "frequency": 330, "duration": 1.5 },

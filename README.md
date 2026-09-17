@@ -16,7 +16,7 @@ The test itself is defined in [config/test-config.json](config/test-config.json)
 
 ## Status
 
-Implemented: a minimal end-to-end P.800 ACR (Absolute Category Rating) flow — welcome screen, volume-calibration step, randomized item presentation with the click-to-play delay, 5-point rating scale, and JSON results download.
+Implemented: a minimal end-to-end P.800 ACR (Absolute Category Rating) flow — welcome screen, a configurable set of practice samples (for volume adjustment and previewing the range of sounds, with a skip option for expert users), randomized item presentation with the click-to-play delay, 5-point rating scale, and JSON results download.
 
 Key design decisions so far:
 

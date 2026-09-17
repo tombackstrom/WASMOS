@@ -22,33 +22,52 @@ export function renderWelcome({ title, instructions }, onStart) {
   });
 }
 
-export function renderVolumeCheck(onContinue) {
+export function renderTraining({ items, allowSkip }, handlers) {
+  const itemRows = items
+    .map(
+      (_, i) => `
+      <div class="play-row">
+        <button class="training-play" data-index="${i}">Play sample ${i + 1}</button>
+      </div>
+    `
+    )
+    .join("");
+
   app.innerHTML = `
     <div class="screen">
-      <h2>Volume check</h2>
+      <h2>Practice samples</h2>
       <p>
-        Play the sample sound below and adjust your device's volume to a
-        comfortable listening level. This sample is not scored — play it as
-        many times as you like.
+        Play the samples below to get a sense of the range of sounds you'll
+        hear, and adjust your device's volume to a comfortable listening
+        level. These samples are not scored — play them as many times as you
+        like.
       </p>
-      <div class="play-row">
-        <button id="playSample">Play sample</button>
-      </div>
+      ${itemRows}
       <div class="actions">
-        <button class="primary" id="continueBtn" disabled>Continue</button>
+        ${allowSkip ? '<button id="skipBtn">Skip practice</button>' : ""}
+        <button class="primary" id="continueBtn" disabled>Continue to test</button>
       </div>
     </div>
   `;
 
   const continueBtn = document.getElementById("continueBtn");
-  const playBtn = document.getElementById("playSample");
-  playBtn.addEventListener("click", async () => {
-    playBtn.disabled = true;
-    await onContinue.onPlay();
-    playBtn.disabled = false;
-    continueBtn.disabled = false;
+
+  document.querySelectorAll(".training-play").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      btn.disabled = true;
+      await handlers.onPlay(Number(btn.dataset.index));
+      btn.disabled = false;
+      continueBtn.disabled = false;
+    });
   });
-  continueBtn.addEventListener("click", () => onContinue.onContinue());
+
+  continueBtn.addEventListener("click", () => handlers.onContinue());
+
+  if (allowSkip) {
+    document
+      .getElementById("skipBtn")
+      .addEventListener("click", () => handlers.onContinue());
+  }
 }
 
 export function renderItem({ index, total, scale }, handlers) {
