@@ -5,11 +5,11 @@
   "randomize": true,
   "clickDelayMs": 250,
   "scale": [
-    { "value": 5, "label": "Excellent" },
-    { "value": 4, "label": "Good" },
-    { "value": 3, "label": "Fair" },
+    { "value": 1, "label": "Bad" },
     { "value": 2, "label": "Poor" },
-    { "value": 1, "label": "Bad" }
+    { "value": 3, "label": "Fair" },
+    { "value": 4, "label": "Good" },
+    { "value": 5, "label": "Excellent" }
   ],
   "trainingItem": {
     "type": "tone",
