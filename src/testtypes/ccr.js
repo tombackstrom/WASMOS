@@ -7,13 +7,13 @@ export const ccr = {
   description:
     "Compare a pair of samples (A and B) and rate how B compares to A on a 7-point scale, from much worse to much better.",
   defaultScale: [
-    { value: -3, displayValue: "-3", label: "Much worse" },
-    { value: -2, displayValue: "-2", label: "Worse" },
-    { value: -1, displayValue: "-1", label: "Slightly worse" },
+    { value: -3, displayValue: "-3", label: "B much worse than A" },
+    { value: -2, displayValue: "-2", label: "B worse than A" },
+    { value: -1, displayValue: "-1", label: "B slightly worse than A" },
     { value: 0, displayValue: "0", label: "About the same" },
-    { value: 1, displayValue: "+1", label: "Slightly better" },
-    { value: 2, displayValue: "+2", label: "Better" },
-    { value: 3, displayValue: "+3", label: "Much better" },
+    { value: 1, displayValue: "+1", label: "B slightly better than A" },
+    { value: 2, displayValue: "+2", label: "B better than A" },
+    { value: 3, displayValue: "+3", label: "B much better than A" },
   ],
 
   // items: [{ id, a: {type, ...}, b: {type, ...} }]
@@ -32,6 +32,7 @@ export const ccr = {
             scale,
             itemLabel,
             heading: "Listen and compare",
+            description: "Rate how B compares to A — either one can sound better or worse.",
             playALabel: "Play A",
             playBLabel: "Play B",
           },

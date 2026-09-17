@@ -29,6 +29,8 @@ export const dcr = {
             scale,
             itemLabel,
             heading: "Listen and rate the degradation",
+            description:
+              "A is the original, unprocessed reference. B is the processed version. Rate how degraded B sounds compared to A.",
             playALabel: "Play A (reference)",
             playBLabel: "Play B (test)",
           },

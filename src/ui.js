@@ -159,13 +159,23 @@ export function renderItem({ index, total, scale, itemLabel = "Item" }, handlers
 // A generic A/B pair per item (DCR's reference+test, CCR's comparison pair,
 // etc.), rated after both sides have been played at least once.
 export function renderPairItem(
-  { index, total, scale, itemLabel = "Item", heading = "Listen and rate", playALabel = "Play A", playBLabel = "Play B" },
+  {
+    index,
+    total,
+    scale,
+    itemLabel = "Item",
+    heading = "Listen and rate",
+    description = "",
+    playALabel = "Play A",
+    playBLabel = "Play B",
+  },
   handlers
 ) {
   app.innerHTML = `
     <div class="screen">
       <div class="progress">${itemLabel} ${index + 1} of ${total}</div>
       <h2>${heading}</h2>
+      ${description ? `<p>${description}</p>` : ""}
       <div class="play-row">
         <button id="playABtn">${playALabel}</button>
         <button id="playBBtn">${playBLabel}</button>
