@@ -39,7 +39,10 @@ function drawWaveform(canvas, buffer, selection) {
 
 // Wires up click/drag selection on a waveform canvas: a plain click seeks
 // (plays from that point to the end), a drag selects a region (plays only
-// that window). Calls onChange(selection | null) as the selection changes.
+// that window). Calls onChange(selection, isFinal) as the selection
+// changes — isFinal is false for the live preview during a drag and true
+// once the gesture ends, so callers can defer anything disruptive (like
+// restarting a loop) until the selection actually settles.
 function setupWaveformInteraction(canvas, buffer, onChange) {
   let dragStartX = null;
 
@@ -58,7 +61,7 @@ function setupWaveformInteraction(canvas, buffer, onChange) {
     if (dragStartX === null) return;
     const start = Math.min(timeAtClientX(dragStartX), timeAtClientX(e.clientX));
     const end = Math.max(timeAtClientX(dragStartX), timeAtClientX(e.clientX));
-    onChange({ start, end });
+    onChange({ start, end }, false);
   });
 
   canvas.addEventListener("pointerup", (e) => {
@@ -66,11 +69,11 @@ function setupWaveformInteraction(canvas, buffer, onChange) {
     const draggedPixels = Math.abs(e.clientX - dragStartX);
     if (draggedPixels < 5) {
       // A plain click: seek to this point, play to the end of the clip.
-      onChange({ start: timeAtClientX(e.clientX), end: buffer.duration });
+      onChange({ start: timeAtClientX(e.clientX), end: buffer.duration }, true);
     } else {
       const start = Math.min(timeAtClientX(dragStartX), timeAtClientX(e.clientX));
       const end = Math.max(timeAtClientX(dragStartX), timeAtClientX(e.clientX));
-      onChange({ start, end });
+      onChange({ start, end }, true);
     }
     dragStartX = null;
   });
@@ -310,7 +313,7 @@ export function renderMushraItem({ index, total, itemLabel = "Item", bands, stim
   const rows = stimuli
     .map(
       (s) => `
-      <div class="mushra-row">
+      <div class="mushra-row" data-key="${s.key}">
         <div class="mushra-row-header">
           <span class="mushra-row-label">${s.label}</span>
           <div class="mushra-row-controls">
@@ -359,29 +362,6 @@ export function renderMushraItem({ index, total, itemLabel = "Item", bands, stim
 
   let selection = null; // {start, end} in seconds, or null = full clip
 
-  if (handlers.getReferenceBuffer) {
-    const canvas = document.getElementById("waveformCanvas");
-    const resetBtn = document.getElementById("resetSelectionBtn");
-    const hint = document.getElementById("waveformHint");
-    canvas.width = canvas.clientWidth || 640;
-
-    handlers.getReferenceBuffer().then((buffer) => {
-      drawWaveform(canvas, buffer, selection);
-      hint.textContent = "Click to seek, or drag to select a region — applies to every sound below.";
-      setupWaveformInteraction(canvas, buffer, (sel) => {
-        selection = sel;
-        resetBtn.disabled = !sel;
-        drawWaveform(canvas, buffer, sel);
-      });
-
-      resetBtn.addEventListener("click", () => {
-        selection = null;
-        resetBtn.disabled = true;
-        drawWaveform(canvas, buffer, null);
-      });
-    });
-  }
-
   const playRefBtn = document.getElementById("playRefBtn");
   const stopBtn = document.getElementById("stopBtn");
   const loopToggle = document.getElementById("loopToggle");
@@ -392,6 +372,32 @@ export function renderMushraItem({ index, total, itemLabel = "Item", bands, stim
   // leaves them live, so clicking a different sample switches the loop to
   // it — handled in startPlayback() below via an implicit stop-then-start.
   let playState = "idle";
+  // The (loop) => handlers.onPlay...(...) closure behind whatever is
+  // currently looping, kept around so a region edit or a Play click on a
+  // different sample can restart it — re-reads `selection` fresh each time,
+  // since it's a closure over that same outer variable.
+  let activePlayFn = null;
+
+  // Highlights both the row (background tint) and its Play button (solid
+  // accent, like the primary button) for whichever sample is currently
+  // playing — the reference has no row, just its button.
+  function elementsForTarget(target) {
+    if (target === "ref") return { row: null, btn: playRefBtn };
+    if (!target) return { row: null, btn: null };
+    return {
+      row: document.querySelector(`.mushra-row[data-key="${target}"]`),
+      btn: document.querySelector(`.mushra-play[data-key="${target}"]`),
+    };
+  }
+
+  let highlighted = { row: null, btn: null };
+  function setHighlight(target) {
+    highlighted.row?.classList.remove("playing");
+    highlighted.btn?.classList.remove("playing");
+    highlighted = elementsForTarget(target);
+    highlighted.row?.classList.add("playing");
+    highlighted.btn?.classList.add("playing");
+  }
 
   function applyPlayState() {
     const busy = playState === "oneshot";
@@ -400,27 +406,70 @@ export function renderMushraItem({ index, total, itemLabel = "Item", bands, stim
     stopBtn.disabled = playState === "idle";
   }
 
-  async function startPlayback(play) {
+  async function startPlayback(target, play) {
     const loop = loopToggle.checked;
     if (playState === "loop") {
       handlers.onStop(); // switching samples: stop the loop already running
     }
     playState = loop ? "loop" : "oneshot";
+    activePlayFn = loop ? play : null;
+    setHighlight(target);
     applyPlayState();
     await play(loop);
     if (playState === "oneshot") {
       playState = "idle";
+      setHighlight(null);
       applyPlayState();
     }
   }
 
-  stopBtn.addEventListener("click", () => {
+  function stopAll() {
     handlers.onStop();
     playState = "idle";
+    activePlayFn = null;
+    setHighlight(null);
     applyPlayState();
-  });
+  }
 
-  playRefBtn.addEventListener("click", () => startPlayback((loop) => handlers.onPlayReference(selection, loop)));
+  // Called after the waveform selection changes while something is
+  // looping, so the loop immediately picks up the new region instead of
+  // finishing out the old one.
+  function restartLoopForSelection() {
+    if (playState !== "loop" || !activePlayFn) return;
+    handlers.onStop();
+    activePlayFn(true);
+  }
+
+  stopBtn.addEventListener("click", stopAll);
+
+  playRefBtn.addEventListener("click", () =>
+    startPlayback("ref", (loop) => handlers.onPlayReference(selection, loop))
+  );
+
+  if (handlers.getReferenceBuffer) {
+    const canvas = document.getElementById("waveformCanvas");
+    const resetBtn = document.getElementById("resetSelectionBtn");
+    const hint = document.getElementById("waveformHint");
+    canvas.width = canvas.clientWidth || 640;
+
+    handlers.getReferenceBuffer().then((buffer) => {
+      drawWaveform(canvas, buffer, selection);
+      hint.textContent = "Click to seek, or drag to select a region — applies to every sound below.";
+      setupWaveformInteraction(canvas, buffer, (sel, isFinal) => {
+        selection = sel;
+        resetBtn.disabled = !sel;
+        drawWaveform(canvas, buffer, sel);
+        if (isFinal) restartLoopForSelection();
+      });
+
+      resetBtn.addEventListener("click", () => {
+        selection = null;
+        resetBtn.disabled = true;
+        drawWaveform(canvas, buffer, null);
+        restartLoopForSelection();
+      });
+    });
+  }
 
   const continueBtn = document.getElementById("continueBtn");
   const played = new Set();
@@ -431,7 +480,7 @@ export function renderMushraItem({ index, total, itemLabel = "Item", bands, stim
   document.querySelectorAll(".mushra-play").forEach((btn) => {
     btn.addEventListener("click", () => {
       const key = btn.dataset.key;
-      startPlayback((loop) => handlers.onPlayStimulus(key, selection, loop)).then(() => {
+      startPlayback(key, (loop) => handlers.onPlayStimulus(key, selection, loop)).then(() => {
         played.add(key);
         document.querySelector(`.mushra-slider[data-key="${key}"]`).disabled = false;
         maybeEnableContinue();
@@ -447,7 +496,7 @@ export function renderMushraItem({ index, total, itemLabel = "Item", bands, stim
   });
 
   continueBtn.addEventListener("click", () => {
-    handlers.onStop();
+    stopAll();
     const ratings = {};
     document.querySelectorAll(".mushra-slider").forEach((slider) => {
       ratings[slider.dataset.key] = Number(slider.value);
@@ -457,7 +506,7 @@ export function renderMushraItem({ index, total, itemLabel = "Item", bands, stim
 
   if (handlers.onSkip) {
     document.getElementById("skipBtn").addEventListener("click", () => {
-      handlers.onStop();
+      stopAll();
       handlers.onSkip();
     });
   }
