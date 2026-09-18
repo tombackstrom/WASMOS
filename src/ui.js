@@ -344,6 +344,10 @@ export function renderMushraItem({ index, total, itemLabel = "Item", bands, stim
       }
       <div class="play-row">
         <button id="playRefBtn">Play reference</button>
+        <button id="stopBtn" disabled>Stop</button>
+        <label class="loop-toggle">
+          <input type="checkbox" id="loopToggle" /> Loop
+        </label>
       </div>
       <div class="mushra-grid">${rows}</div>
       <div class="actions">
@@ -379,11 +383,44 @@ export function renderMushraItem({ index, total, itemLabel = "Item", bands, stim
   }
 
   const playRefBtn = document.getElementById("playRefBtn");
-  playRefBtn.addEventListener("click", async () => {
-    playRefBtn.disabled = true;
-    await handlers.onPlayReference(selection);
-    playRefBtn.disabled = false;
+  const stopBtn = document.getElementById("stopBtn");
+  const loopToggle = document.getElementById("loopToggle");
+  const playButtons = [playRefBtn, ...document.querySelectorAll(".mushra-play")];
+
+  // "idle" | "oneshot" | "loop". A one-shot play blocks every other Play
+  // button until it finishes (nothing to switch to mid-clip). A loop instead
+  // leaves them live, so clicking a different sample switches the loop to
+  // it — handled in startPlayback() below via an implicit stop-then-start.
+  let playState = "idle";
+
+  function applyPlayState() {
+    const busy = playState === "oneshot";
+    playButtons.forEach((b) => (b.disabled = busy));
+    loopToggle.disabled = busy;
+    stopBtn.disabled = playState === "idle";
+  }
+
+  async function startPlayback(play) {
+    const loop = loopToggle.checked;
+    if (playState === "loop") {
+      handlers.onStop(); // switching samples: stop the loop already running
+    }
+    playState = loop ? "loop" : "oneshot";
+    applyPlayState();
+    await play(loop);
+    if (playState === "oneshot") {
+      playState = "idle";
+      applyPlayState();
+    }
+  }
+
+  stopBtn.addEventListener("click", () => {
+    handlers.onStop();
+    playState = "idle";
+    applyPlayState();
   });
+
+  playRefBtn.addEventListener("click", () => startPlayback((loop) => handlers.onPlayReference(selection, loop)));
 
   const continueBtn = document.getElementById("continueBtn");
   const played = new Set();
@@ -392,14 +429,13 @@ export function renderMushraItem({ index, total, itemLabel = "Item", bands, stim
   }
 
   document.querySelectorAll(".mushra-play").forEach((btn) => {
-    btn.addEventListener("click", async () => {
+    btn.addEventListener("click", () => {
       const key = btn.dataset.key;
-      btn.disabled = true;
-      await handlers.onPlayStimulus(key, selection);
-      btn.disabled = false;
-      played.add(key);
-      document.querySelector(`.mushra-slider[data-key="${key}"]`).disabled = false;
-      maybeEnableContinue();
+      startPlayback((loop) => handlers.onPlayStimulus(key, selection, loop)).then(() => {
+        played.add(key);
+        document.querySelector(`.mushra-slider[data-key="${key}"]`).disabled = false;
+        maybeEnableContinue();
+      });
     });
   });
 
@@ -411,6 +447,7 @@ export function renderMushraItem({ index, total, itemLabel = "Item", bands, stim
   });
 
   continueBtn.addEventListener("click", () => {
+    handlers.onStop();
     const ratings = {};
     document.querySelectorAll(".mushra-slider").forEach((slider) => {
       ratings[slider.dataset.key] = Number(slider.value);
@@ -419,7 +456,10 @@ export function renderMushraItem({ index, total, itemLabel = "Item", bands, stim
   });
 
   if (handlers.onSkip) {
-    document.getElementById("skipBtn").addEventListener("click", () => handlers.onSkip());
+    document.getElementById("skipBtn").addEventListener("click", () => {
+      handlers.onStop();
+      handlers.onSkip();
+    });
   }
 }
 
